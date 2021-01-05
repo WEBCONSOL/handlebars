@@ -11,17 +11,17 @@ installation
 
 add the following to require property of your composer.json file:
 
-``
+```
 composer require webvconsol/handlebars.php "dev-maste"
 composer require webconsol/php-hbs-helpersp "dev-maste"
-``
+```
 
 OR, depending on your composer setup
 
-``
+```
 php composer.phar require webvconsol/handlebars.php "dev-maste"
 php composer.phar require webconsol/php-hbs-helpers "dev-maste"
-``
+```
 
 usage
 -----
