@@ -1,8 +1,5 @@
 Handlebars.php
 ==============
-[![Build Status](https://travis-ci.org/XaminProject/handlebars.php.png?branch=master)](https://travis-ci.org/XaminProject/handlebars.php)
-[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/XaminProject/handlebars.php/badges/quality-score.png?s=23a379f19b523498926eb3f2b60195815632e8ef)](https://scrutinizer-ci.com/g/XaminProject/handlebars.php/)
-[![Code Coverage](https://scrutinizer-ci.com/g/XaminProject/handlebars.php/badges/coverage.png?s=9d6acd80ef2bda03cbd00a0cff35535614ce79ed)](https://scrutinizer-ci.com/g/XaminProject/handlebars.php/)
 
 credit
 ------
@@ -14,12 +11,17 @@ installation
 
 add the following to require property of your composer.json file:
 
-`"webvconsol/handlebars.php": "dev-master"` for php 5.3+
-`"webvconsol/handlebars.php": "dev-php-52"` for php 5.2
+``
+composer require webvconsol/handlebars.php "dev-maste"
+composer require webconsol/php-hbs-helpersp "dev-maste"
+``
 
-then run:
+OR, depending on your composer setup
 
-`$ composer install`
+``
+php composer.phar require webvconsol/handlebars.php "dev-maste"
+php composer.phar require webconsol/php-hbs-helpers "dev-maste"
+``
 
 usage
 -----
@@ -27,25 +29,37 @@ usage
 ```php
 <?php
 
-// uncomment the following two lines, if you don't use composer
-// require 'src/Handlebars/Autoloader.php';
-// Handlebars\Autoloader::register();
+// require 'vendor/autoload.php';
 
 use Handlebars\Handlebars;
 
 $engine = new Handlebars;
-
-echo $engine->render(
-    'Planets:<br />{{#each planets}}<h6>{{this}}</h6>{{/each}}',
-    array(
-        'planets' => array(
-            "Mercury",
-            "Venus",
-            "Earth",
-            "Mars"
-        )
-    )
+$tmpl = 'Planets:<br />{{#each planets}}<h6>{{this}}</h6>{{/each}}';
+$context = array('planets' => array(
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Mars")
 );
+echo $engine->render($tmpl, $context);
+```
+
+OR
+
+```php
+<?php
+
+use HandlebarsHelpers\Hbs;
+
+// When using HandlebarsHelpers\Hbs, tmpl can be HTML string or a path to a .hbs file
+$tmpl = 'Planets:<br />{{#each planets}}<h6>{{this}}</h6>{{/each}}';
+$context = array('planets' => array(
+    "Mercury",
+    "Venus",
+    "Earth",
+    "Mars")
+);
+echo Hbs::render($tmpl, $context);
 ```
 
 ```php
