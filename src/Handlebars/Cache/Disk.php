@@ -18,7 +18,10 @@
  */
 
 namespace Handlebars\Cache;
+
 use Handlebars\Cache;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * A flat-file filesystem cache.
@@ -32,7 +35,6 @@ use Handlebars\Cache;
  * @version   Release: @package_version@
  * @link      http://xamin.ir
  */
-
 class Disk implements Cache
 {
 
@@ -43,43 +45,29 @@ class Disk implements Cache
     /**
      * Construct the disk cache.
      *
-     * @param string $path   Filesystem path to the disk cache location
+     * @param string $path Filesystem path to the disk cache location
      * @param string $prefix optional file prefix, defaults to empty string
      * @param string $suffix optional file extension, defaults to empty string
      *
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      */
     public function __construct($path, $prefix = '', $suffix = '')
     {
         if (empty($path)) {
-            throw new \InvalidArgumentException('Must specify disk cache path');
-        } elseif (!is_dir($path)) {
+            throw new InvalidArgumentException('Must specify disk cache path');
+        }
+        elseif (!is_dir($path)) {
             @mkdir($path, 0777, true);
 
             if (!is_dir($path)) {
-                throw new \RuntimeException('Could not create cache file path');
+                throw new RuntimeException('Could not create cache file path');
             }
         }
 
         $this->_path = $path;
         $this->_prefix = $prefix;
         $this->_suffix = $suffix;
-    }
-
-    /**
-     * Gets the full disk path for a given cache item's file,
-     * taking into account the cache path, optional prefix,
-     * and optional extension.
-     *
-     * @param string $name Name of the cache item
-     *
-     * @return string full disk path of cached item
-     */
-    private function _getPath($name)
-    {
-        return $this->_path . DIRECTORY_SEPARATOR .
-            $this->_prefix . $name . $this->_suffix;
     }
 
     /**
@@ -101,7 +89,8 @@ class Disk implements Cache
             $time = time();
             if ($ttl == -1 || ($ttl > 0 && $time - $ctime > $ttl)) {
                 unlink($path);
-            } else {
+            }
+            else {
                 $serialized_data = fread($file, filesize($path));
                 $output = unserialize($serialized_data);
             }
@@ -111,13 +100,28 @@ class Disk implements Cache
     }
 
     /**
+     * Gets the full disk path for a given cache item's file,
+     * taking into account the cache path, optional prefix,
+     * and optional extension.
+     *
+     * @param string $name Name of the cache item
+     *
+     * @return string full disk path of cached item
+     */
+    private function _getPath($name)
+    {
+        return $this->_path . DIRECTORY_SEPARATOR .
+            $this->_prefix . $name . $this->_suffix;
+    }
+
+    /**
      * Set a cache with $ttl, if present
      * If $ttl set to -1, the cache expires immediately
      * If $ttl set to 0 (default), cache is never purged
      *
-     * @param string $name  cache id
-     * @param mixed  $value data to store
-     * @param int    $ttl   time to live in seconds
+     * @param string $name cache id
+     * @param mixed $value data to store
+     * @param int $ttl time to live in seconds
      *
      * @return void
      */
@@ -125,7 +129,7 @@ class Disk implements Cache
     {
         $path = $this->_getPath($name);
 
-        file_put_contents($path, $ttl.PHP_EOL.serialize($value));
+        file_put_contents($path, $ttl . PHP_EOL . serialize($value));
     }
 
     /**

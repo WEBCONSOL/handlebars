@@ -31,7 +31,6 @@ namespace Handlebars;
  * @version   Release: @package_version@
  * @link      http://xamin.ir
  */
-
 interface Loader
 {
 

@@ -20,6 +20,9 @@
 
 namespace Handlebars;
 
+use InvalidArgumentException;
+use Traversable;
+
 /**
  * Handlebars helpers
  *
@@ -47,11 +50,11 @@ class Helpers
     /**
      * Create new helper container class
      *
-     * @param array      $helpers  array of name=>$value helpers
+     * @param array $helpers array of name=>$value helpers
      * @param array|bool $defaults add defaults helper
      *          (if, unless, each,with, bindAttr)
      *
-     * @throws \InvalidArgumentException when $helpers is not an array
+     * @throws InvalidArgumentException when $helpers is not an array
      * (or traversable) or helper is not a callable
      */
     public function __construct($helpers = null, $defaults = true)
@@ -60,8 +63,8 @@ class Helpers
             $this->addDefaultHelpers();
         }
         if ($helpers != null) {
-            if (!is_array($helpers) && !$helpers instanceof \Traversable) {
-                throw new \InvalidArgumentException(
+            if (!is_array($helpers) && !$helpers instanceof Traversable) {
+                throw new InvalidArgumentException(
                     'HelperCollection constructor expects an array of helpers'
                 );
             }
@@ -91,16 +94,16 @@ class Helpers
     /**
      * Add a new helper to helpers
      *
-     * @param string $name   helper name
-     * @param mixed  $helper a callable or Helper implementation as a helper
+     * @param string $name helper name
+     * @param mixed $helper a callable or Helper implementation as a helper
      *
-     * @throws \InvalidArgumentException if $helper is not a callable
      * @return void
+     * @throws InvalidArgumentException if $helper is not a callable
      */
     public function add($name, $helper)
     {
-        if (!is_callable($helper) && ! $helper instanceof Helper) {
-            throw new \InvalidArgumentException(
+        if (!is_callable($helper) && !$helper instanceof Helper) {
+            throw new InvalidArgumentException(
                 sprintf(
                     "%s Helper is not a callable or doesn't implement the Helper interface.",
                     $name
@@ -126,21 +129,32 @@ class Helpers
     }
 
     /**
+     * Returns all helpers from the collection.
+     *
+     * @return array Associative array of helpers which keys are helpers names
+     * and the values are the helpers.
+     */
+    public function getAll()
+    {
+        return $this->helpers;
+    }
+
+    /**
      * Calls a helper, whether it be a Closure or Helper instance
      *
-     * @param string               $name     The name of the helper
-     * @param \Handlebars\Template $template The template instance
-     * @param \Handlebars\Context  $context  The current context
-     * @param array                $args     The arguments passed the the helper
-     * @param string               $source   The source
+     * @param string $name The name of the helper
+     * @param Template $template The template instance
+     * @param Context $context The current context
+     * @param array $args The arguments passed the the helper
+     * @param string $source The source
      *
-     * @throws \InvalidArgumentException
      * @return mixed The helper return value
+     * @throws InvalidArgumentException
      */
     public function call($name, Template $template, Context $context, $args, $source)
     {
         if (!$this->has($name)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Unknown helper: "%s"',
                     $name
@@ -156,10 +170,10 @@ class Helpers
         }
 
         return call_user_func(
-            $this->helpers[$name], 
-            $template, 
-            $context, 
-            $parsedArgs, 
+            $this->helpers[$name],
+            $template,
+            $context,
+            $parsedArgs,
             $source
         );
     }
@@ -181,13 +195,13 @@ class Helpers
      *
      * @param string $name helper name
      *
-     * @throws \InvalidArgumentException if $name is not available
      * @return callable helper function
+     * @throws InvalidArgumentException if $name is not available
      */
     public function __get($name)
     {
         if (!$this->has($name)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Unknown helper: "%s"',
                     $name
@@ -196,6 +210,19 @@ class Helpers
         }
 
         return $this->helpers[$name];
+    }
+
+    /**
+     * Add a new helper to helpers __magic__ method :)
+     *
+     * @param string $name helper name
+     * @param callable $helper a function as a helper
+     *
+     * @return void
+     */
+    public function __set($name, $helper)
+    {
+        $this->add($name, $helper);
     }
 
     /**
@@ -209,19 +236,6 @@ class Helpers
     public function __isset($name)
     {
         return $this->has($name);
-    }
-
-    /**
-     * Add a new helper to helpers __magic__ method :)
-     *
-     * @param string   $name   helper name
-     * @param callable $helper a function as a helper
-     *
-     * @return void
-     */
-    public function __set($name, $helper)
-    {
-        $this->add($name, $helper);
     }
 
     /**
@@ -241,13 +255,13 @@ class Helpers
      *
      * @param string $name helper name
      *
-     * @throws \InvalidArgumentException if the requested helper is not present.
      * @return void
+     * @throws InvalidArgumentException if the requested helper is not present.
      */
     public function remove($name)
     {
         if (!$this->has($name)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Unknown helper: "%s"',
                     $name
@@ -278,16 +292,5 @@ class Helpers
     public function isEmpty()
     {
         return empty($this->helpers);
-    }
-
-    /**
-     * Returns all helpers from the collection.
-     *
-     * @return array Associative array of helpers which keys are helpers names
-     * and the values are the helpers.
-     */
-    public function getAll()
-    {
-        return $this->helpers;
     }
 }

@@ -25,6 +25,8 @@ namespace Handlebars\Loader;
 
 use Handlebars\Loader;
 use Handlebars\StringWrapper;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Handlebars Template filesystem Loader implementation.
@@ -38,7 +40,6 @@ use Handlebars\StringWrapper;
  * @version   Release: @package_version@
  * @link      http://xamin.ir *
  */
-
 class FilesystemLoader implements Loader
 {
     protected $baseDir;
@@ -57,34 +58,14 @@ class FilesystemLoader implements Loader
      *     );
      *
      * @param string|array $baseDirs A path contain template files or array of paths
-     * @param array        $options  Array of Loader options (default: array())
+     * @param array $options Array of Loader options (default: array())
      *
-     * @throws \RuntimeException if $baseDir does not exist.
+     * @throws RuntimeException if $baseDir does not exist.
      */
     public function __construct($baseDirs, array $options = array())
     {
         $this->setBaseDir($baseDirs);
         $this->handleOptions($options);
-    }
-
-    /**
-     * Load a Template by name.
-     *
-     *     $loader = new FilesystemLoader(dirname(__FILE__).'/views');
-     *     // loads "./views/admin/dashboard.handlebars";
-     *     $loader->load('admin/dashboard');
-     *
-     * @param string $name template name
-     *
-     * @return StringWrapper Handlebars Template source
-     */
-    public function load($name)
-    {
-        if (!isset($this->_templates[$name])) {
-            $this->_templates[$name] = $this->loadFile($name);
-        }
-
-        return new StringWrapper($this->_templates[$name]);
     }
 
     /**
@@ -98,7 +79,8 @@ class FilesystemLoader implements Loader
     {
         if (is_string($baseDirs)) {
             $baseDirs = array($this->sanitizeDirectory($baseDirs));
-        } else {
+        }
+        else {
             foreach ($baseDirs as &$dir) {
                 $dir = $this->sanitizeDirectory($dir);
             }
@@ -107,7 +89,7 @@ class FilesystemLoader implements Loader
 
         foreach ($baseDirs as $dir) {
             if (!is_dir($dir)) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     'FilesystemLoader baseDir must be a directory: ' . $dir
                 );
             }
@@ -147,19 +129,39 @@ class FilesystemLoader implements Loader
     }
 
     /**
+     * Load a Template by name.
+     *
+     *     $loader = new FilesystemLoader(dirname(__FILE__).'/views');
+     *     // loads "./views/admin/dashboard.handlebars";
+     *     $loader->load('admin/dashboard');
+     *
+     * @param string $name template name
+     *
+     * @return StringWrapper Handlebars Template source
+     */
+    public function load($name)
+    {
+        if (!isset($this->_templates[$name])) {
+            $this->_templates[$name] = $this->loadFile($name);
+        }
+
+        return new StringWrapper($this->_templates[$name]);
+    }
+
+    /**
      * Helper function for loading a Handlebars file by name.
      *
      * @param string $name template name
      *
-     * @throws \InvalidArgumentException if a template file is not found.
      * @return string Handlebars Template source
+     * @throws InvalidArgumentException if a template file is not found.
      */
     protected function loadFile($name)
     {
         $fileName = $this->getFileName($name);
 
         if ($fileName === false) {
-            throw new \InvalidArgumentException('Template ' . $name . ' not found.');
+            throw new InvalidArgumentException('Template ' . $name . ' not found.');
         }
 
         return file_get_contents($fileName);

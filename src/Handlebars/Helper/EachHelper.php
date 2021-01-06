@@ -19,9 +19,11 @@
 
 namespace Handlebars\Helper;
 
+use Handlebars\Arguments;
 use Handlebars\Context;
 use Handlebars\Helper;
 use Handlebars\Template;
+use Traversable;
 
 /**
  * The Each Helper
@@ -43,10 +45,10 @@ class EachHelper implements Helper
     /**
      * Execute the helper
      *
-     * @param \Handlebars\Template  $template The template instance
-     * @param \Handlebars\Context   $context  The current context
-     * @param \Handlebars\Arguments $args     The arguments passed the the helper
-     * @param string                $source   The source
+     * @param Template $template The template instance
+     * @param Context $context The current context
+     * @param Arguments $args The arguments passed the the helper
+     * @param string $source The source
      *
      * @return mixed
      */
@@ -61,7 +63,8 @@ class EachHelper implements Helper
             $template->discard();
             $template->setStopToken(false);
             $buffer = $template->render($context);
-        } elseif (is_array($tmp) || $tmp instanceof \Traversable) {
+        }
+        elseif (is_array($tmp) || $tmp instanceof Traversable) {
             $isList = is_array($tmp) && (array_keys($tmp) === range(0, count($tmp) - 1));
             $index = 0;
             $lastIndex = $isList ? (count($tmp) - 1) : false;
@@ -70,7 +73,7 @@ class EachHelper implements Helper
                 $specialVariables = array(
                     '@index' => $index,
                     '@first' => ($index === 0),
-                    '@last' => ($index === $lastIndex),
+                    '@last'  => ($index === $lastIndex),
                 );
                 if (!$isList) {
                     $specialVariables['@key'] = $key;

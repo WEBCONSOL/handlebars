@@ -33,7 +33,6 @@ namespace Handlebars;
  * @version   Release: @package_version@
  * @link      http://xamin.ir
  */
-
 class Autoloader
 {
 
@@ -49,7 +48,8 @@ class Autoloader
     {
         if ($baseDir === null) {
             $this->_baseDir = realpath(__DIR__ . '/..');
-        } else {
+        }
+        else {
             $this->_baseDir = rtrim($baseDir, '/');
         }
     }
@@ -60,7 +60,7 @@ class Autoloader
      * @param string $baseDir Handlebars library base directory, default is
      *                        __DIR__.'/..'
      *
-     * @return \Handlebars\Autoloader Registered Autoloader instance
+     * @return Autoloader Registered Autoloader instance
      */
     public static function register($baseDir = null)
     {

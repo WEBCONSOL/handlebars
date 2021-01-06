@@ -17,6 +17,7 @@
 namespace Handlebars\Loader;
 
 use Handlebars\Loader;
+use RuntimeException;
 
 /**
  * Handlebars Template array Loader implementation.
@@ -46,7 +47,7 @@ class ArrayLoader implements Loader
     /**
      * Add a template to list
      *
-     * @param string $name     template name
+     * @param string $name template name
      * @param string $template the template
      *
      * @return void
@@ -61,15 +62,15 @@ class ArrayLoader implements Loader
      *
      * @param string $name template name to load
      *
-     * @throws \RuntimeException
      * @return String
+     * @throws RuntimeException
      */
     public function load($name)
     {
         if (isset($this->_templates[$name])) {
             return $this->_templates[$name];
         }
-        throw new \RuntimeException(
+        throw new RuntimeException(
             "Can not find the $name template"
         );
     }

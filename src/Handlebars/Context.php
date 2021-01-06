@@ -23,6 +23,9 @@
 
 namespace Handlebars;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 /**
  * Handlebars context
  * Context for a template
@@ -37,7 +40,6 @@ namespace Handlebars;
  * @version   Release: @package_version@
  * @link      http://xamin.ir
  */
-
 class Context
 {
     /**
@@ -73,7 +75,7 @@ class Context
     protected $key = array();
 
     /**
-     * Special variables stack for sections. 
+     * Special variables stack for sections.
      *
      * @var array Each stack element can
      * contain elements with "@index", "@key", "@first" and "@last" keys.
@@ -90,18 +92,6 @@ class Context
         if ($context !== null) {
             $this->stack = array($context);
         }
-    }
-
-    /**
-     * Push a new Context frame onto the stack.
-     *
-     * @param mixed $value Object or array to use for context
-     *
-     * @return void
-     */
-    public function push($value)
-    {
-        array_push($this->stack, $value);
     }
 
     /**
@@ -151,18 +141,6 @@ class Context
     }
 
     /**
-     * Get the last special variables set from the stack.
-     *
-     * @return array Associative array of special variables.
-     *
-     * @see \Handlebars\Context::$specialVariables
-     */
-    public function lastSpecialVariables()
-    {
-        return end($this->specialVariables);
-    }
-
-    /**
      * Change the current context to one of current context members
      *
      * @param string $variableName name of variable or a callable on current context
@@ -182,17 +160,17 @@ class Context
      * Supported types :
      * variable , ../variable , variable.variable , variable.[variable] , .
      *
-     * @param string  $variableName variable name to get from current context
-     * @param boolean $strict       strict search? if not found then throw exception
+     * @param string $variableName variable name to get from current context
+     * @param boolean $strict strict search? if not found then throw exception
      *
-     * @throws \InvalidArgumentException in strict mode and variable not found
-     * @throws \RuntimeException if supplied argument is a malformed quoted string 
-     * @throws \InvalidArgumentException if variable name is invalid
      * @return mixed
+     * @throws RuntimeException if supplied argument is a malformed quoted string
+     * @throws InvalidArgumentException if variable name is invalid
+     * @throws InvalidArgumentException in strict mode and variable not found
      */
     public function get($variableName, $strict = false)
     {
-        if ($variableName instanceof \Handlebars\StringWrapper) {
+        if ($variableName instanceof StringWrapper) {
             return (string)$variableName;
         }
         $variableName = trim($variableName);
@@ -203,7 +181,7 @@ class Context
         }
         if (count($this->stack) < $level) {
             if ($strict) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     sprintf(
                         'Can not find variable in context: "%s"',
                         $variableName
@@ -215,7 +193,7 @@ class Context
         }
         if (substr($variableName, 0, 6) == '@root.') {
             $variableName = trim(substr($variableName, 6));
-            $level = count($this->stack)-1;
+            $level = count($this->stack) - 1;
         }
         end($this->stack);
         while ($level) {
@@ -225,7 +203,7 @@ class Context
         $current = current($this->stack);
         if (!$variableName) {
             if ($strict) {
-                throw new \InvalidArgumentException(
+                throw new InvalidArgumentException(
                     sprintf(
                         'Can not find variable in context: "%s"',
                         $variableName
@@ -234,23 +212,28 @@ class Context
             }
 
             return '';
-        } elseif ($variableName == '.' || $variableName == 'this') {
+        }
+        elseif ($variableName == '.' || $variableName == 'this') {
             return $current;
-        } elseif ($variableName[0] == '@') {
+        }
+        elseif ($variableName[0] == '@') {
             $specialVariables = $this->lastSpecialVariables();
             if (isset($specialVariables[$variableName])) {
                 return $specialVariables[$variableName];
-            } elseif ($strict) {
-                throw new \InvalidArgumentException(
+            }
+            elseif ($strict) {
+                throw new InvalidArgumentException(
                     sprintf(
                         'Can not find variable in context: "%s"',
                         $variableName
                     )
                 );
-            } else {
+            }
+            else {
                 return '';
             }
-        } else {
+        }
+        else {
             $chunks = $this->_splitVariableName($variableName);
             foreach ($chunks as $chunk) {
                 if (is_string($current) and $current == '') {
@@ -263,44 +246,15 @@ class Context
     }
 
     /**
-     * Check if $variable->$inside is available
+     * Get the last special variables set from the stack.
      *
-     * @param mixed   $variable variable to check
-     * @param string  $inside   property/method to check
-     * @param boolean $strict   strict search? if not found then throw exception
+     * @return array Associative array of special variables.
      *
-     * @throws \InvalidArgumentException in strict mode and variable not found
-     * @return boolean true if exist
+     * @see \Handlebars\Context::$specialVariables
      */
-    private function _findVariableInContext($variable, $inside, $strict = false)
+    public function lastSpecialVariables()
     {
-        $value = null;
-        if (($inside !== '0' && empty($inside)) || ($inside == 'this')) {
-            return $variable;
-        } elseif (is_array($variable)) {
-            if (isset($variable[$inside]) || array_key_exists($inside, $variable)) {
-                return $variable[$inside];
-            } elseif ($inside == "length") {
-                return count($variable);
-            }
-        } elseif (is_object($variable)) {
-            if (isset($variable->$inside)) {
-                return $variable->$inside;
-            } elseif (is_callable(array($variable, $inside))) {
-                return call_user_func(array($variable, $inside));
-            }
-        }
-
-        if ($strict) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    'Can not find variable in context: "%s"',
-                    $inside
-                )
-            );
-        }
-
-        return $value;
+        return end($this->specialVariables);
     }
 
     /**
@@ -308,30 +262,30 @@ class Context
      *
      * @param string $variableName Fully qualified name of a variable.
      *
-     * @throws \InvalidArgumentException if variable name is invalid.
      * @return array
+     * @throws InvalidArgumentException if variable name is invalid.
      */
     private function _splitVariableName($variableName)
     {
         $bad_chars = preg_quote(self::NOT_VALID_NAME_CHARS, '/');
         $bad_seg_chars = preg_quote(self::NOT_VALID_SEGMENT_NAME_CHARS, '/');
 
-        $name_pattern = "(?:[^" 
-            . $bad_chars 
-            . "\s]+)|(?:\[[^" 
-            . $bad_seg_chars 
+        $name_pattern = "(?:[^"
+            . $bad_chars
+            . "\s]+)|(?:\[[^"
+            . $bad_seg_chars
             . "]+\])";
-        
-        $check_pattern = "/^((" 
-            . $name_pattern 
-            . ")\.)*(" 
-            . $name_pattern  
+
+        $check_pattern = "/^(("
+            . $name_pattern
+            . ")\.)*("
+            . $name_pattern
             . ")\.?$/";
-        
+
         $get_pattern = "/(?:" . $name_pattern . ")/";
 
         if (!preg_match($check_pattern, $variableName)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Variable name is invalid: "%s"',
                     $variableName
@@ -351,6 +305,63 @@ class Context
         }
 
         return $chunks;
+    }
+
+    /**
+     * Check if $variable->$inside is available
+     *
+     * @param mixed $variable variable to check
+     * @param string $inside property/method to check
+     * @param boolean $strict strict search? if not found then throw exception
+     *
+     * @return boolean true if exist
+     * @throws InvalidArgumentException in strict mode and variable not found
+     */
+    private function _findVariableInContext($variable, $inside, $strict = false)
+    {
+        $value = null;
+        if (($inside !== '0' && empty($inside)) || ($inside == 'this')) {
+            return $variable;
+        }
+        elseif (is_array($variable)) {
+            if (isset($variable[$inside]) || array_key_exists($inside, $variable)) {
+                return $variable[$inside];
+            }
+            elseif ($inside == "length") {
+                return count($variable);
+            }
+        }
+        elseif (is_object($variable)) {
+            if (isset($variable->$inside)) {
+                return $variable->$inside;
+            }
+            elseif (is_callable(array($variable, $inside))) {
+                return call_user_func(array($variable, $inside));
+            }
+        }
+
+        if ($strict) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Can not find variable in context: "%s"',
+                    $inside
+                )
+            );
+        }
+
+        return $value;
+    }
+
+    /**
+     * Push a new Context frame onto the stack.
+     *
+     * @param mixed $value Object or array to use for context
+     *
+     * @return void
+     */
+    public function push($value)
+    {
+        array_push($this->stack, $value);
     }
 
 }

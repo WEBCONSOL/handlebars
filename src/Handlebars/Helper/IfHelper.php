@@ -18,6 +18,7 @@
 
 namespace Handlebars\Helper;
 
+use Handlebars\Arguments;
 use Handlebars\Context;
 use Handlebars\Helper;
 use Handlebars\Template;
@@ -41,10 +42,10 @@ class IfHelper implements Helper
     /**
      * Execute the helper
      *
-     * @param \Handlebars\Template  $template The template instance
-     * @param \Handlebars\Context   $context  The current context
-     * @param \Handlebars\Arguments $args     The arguments passed the the helper
-     * @param string                $source   The source
+     * @param Template $template The template instance
+     * @param Context $context The current context
+     * @param Arguments $args The arguments passed the the helper
+     * @param string $source The source
      *
      * @return mixed
      */
@@ -58,7 +59,8 @@ class IfHelper implements Helper
             $buffer = $template->render($context);
             $template->setStopToken(false);
             $template->discard($context);
-        } else {
+        }
+        else {
             $template->setStopToken('else');
             $template->discard($context);
             $template->setStopToken(false);

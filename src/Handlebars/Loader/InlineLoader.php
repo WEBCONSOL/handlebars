@@ -36,6 +36,7 @@
 namespace Handlebars\Loader;
 
 use Handlebars\Loader;
+use InvalidArgumentException;
 
 /**
  * The inline loader
@@ -68,14 +69,14 @@ class InlineLoader implements Loader
      * file, it would be necessary to manually specify the filename and offset.
      *
      * @param string $fileName The file to parse for inline templates
-     * @param int    $offset   A string offset for the start of the templates.
+     * @param int $offset A string offset for the start of the templates.
      *                         This usually coincides with the `__halt_compiler`
      *                         call, and the `__COMPILER_HALT_OFFSET__`.
      */
     public function __construct($fileName, $offset)
     {
         if (!is_file($fileName)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'InlineLoader expects a valid filename, "%s" given.',
                     $fileName
@@ -84,7 +85,7 @@ class InlineLoader implements Loader
         }
 
         if (!is_int($offset) || $offset < 0) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'InlineLoader expects a valid file offset, "%s" given.',
                     $offset
@@ -108,7 +109,7 @@ class InlineLoader implements Loader
         $this->loadTemplates();
 
         if (!array_key_exists($name, $this->templates)) {
-            throw new \InvalidArgumentException("Template $name not found.");
+            throw new InvalidArgumentException("Template $name not found.");
         }
 
         return $this->templates[$name];

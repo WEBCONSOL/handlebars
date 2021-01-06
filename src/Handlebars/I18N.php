@@ -6,9 +6,11 @@ class I18N
 {
     private static $data = [];
 
-    private function __construct() {}
+    private function __construct(){ }
 
-    public final static function load($arg): void {
+    public final static function load($arg)
+    : void
+    {
         if (is_string($arg)) {
             if (is_file($arg)) {
                 self::$data = parse_ini_file($arg);
@@ -28,11 +30,21 @@ class I18N
         }
     }
 
-    public final static function set(string $key, string $val): void {self::$data[$key] = $val;}
-
-    public final static function get(string $key, string $default=''): string {return isset(self::$data[$key]) ? self::$data[$key] : $default;}
-
-    private static function isValidJSON($str): bool {
+    private static function isValidJSON($str)
+    : bool
+    {
         return $str && is_string($str) && is_array(json_decode($str, true)) && (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    public final static function set(string $key, string $val)
+    : void
+    {
+        self::$data[$key] = $val;
+    }
+
+    public final static function get(string $key, string $default = '')
+    : string
+    {
+        return isset(self::$data[$key]) ? self::$data[$key] : $default;
     }
 }

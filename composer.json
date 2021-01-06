@@ -1,29 +1,31 @@
 {
-    "name": "webconsol/handlebars.php",
-    "description": "Handlebars processor for php",
-    "homepage": "https://github.com/WEBCONSOL/handlebars",
-    "type": "library",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "fzerorubigd",
-            "email": "fzerorubigd@gmail.com"
-        },
-        {
-            "name": "Behrooz Shabani (everplays)",
-            "email": "everplays@gmail.com"
-        },
-        {
-            "name": "Sothea Nim",
-            "email": "sothea.nim@ezpizee.com"
-        }
-    ],
-    "require": {},
-    "autoload": {
-        "psr-0": {
-            "Handlebars": "src/"
-        }
+  "name": "webconsol/handlebars.php",
+  "description": "Handlebars processor for php",
+  "homepage": "https://github.com/WEBCONSOL/handlebars",
+  "type": "library",
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "fzerorubigd",
+      "email": "fzerorubigd@gmail.com"
+    },
+    {
+      "name": "Behrooz Shabani (everplays)",
+      "email": "everplays@gmail.com"
+    },
+    {
+      "name": "Sothea Nim",
+      "email": "sothea.nim@ezpizee.com"
     }
+  ],
+  "require": {
+    "php": ">=7.2"
+  },
+  "autoload": {
+    "psr-0": {
+      "Handlebars": "src/"
+    }
+  }
 }
