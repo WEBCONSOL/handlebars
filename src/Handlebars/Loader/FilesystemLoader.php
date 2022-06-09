@@ -142,7 +142,14 @@ class FilesystemLoader implements Loader
     public function load($name)
     {
         if (!isset($this->_templates[$name])) {
-            $this->_templates[$name] = $this->loadFile($name);
+            if (empty(pathinfo($name, PATHINFO_EXTENSION))) {
+                $src = $name;
+                $name = md5($name);
+                $this->_templates[$name] = $src;
+            }
+            else {
+                $this->_templates[$name] = $this->loadFile($name);
+            }
         }
 
         return new StringWrapper($this->_templates[$name]);
